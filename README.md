@@ -9,8 +9,14 @@ No código há alguns exemplos de:
 * Criação de gráficos simples com `matplotlib` para realiação de nálise exploratório.
 * Tarefas comuns de machine learning, utilando o `scikitlearn`.
 
-
 ## Observações
 * As versões mais antigas do projeto estão salvas na pasta ``tags``.
 * Os arquivos de dados (gerados a partir dos enunciados pelos scripts `cria_datasets.py`) foram excluídos do repositório (através da inclusão da extensão `.npy` no .gitignore) pois eles eram muito grandes.
 
+__________________________
+
+# Atualização:
+
+Modelo em atualização para utilização de word embeddings com LSTM, buscando melhoria na performance do modelo preditivo. Arquivos novos no diretório nnmodel. 
+
+Embeddings utilizados de: http://nilc.icmc.usp.br/nilc/index.php/repositorio-de-word-embeddings-do-nilc#
