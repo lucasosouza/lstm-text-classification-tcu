@@ -49,7 +49,8 @@ print("the", str(index) + "th word in the vocabulary is", index_to_words[index])
 
 # load X and Y
 max_len = 100
-data_files = get_ipython().getoutput('ls ../data')
+data_files = ["../data/JURIS-Enunciados1.xls","../data/JURIS-Enunciados2.xls","../data/JURIS-Enunciados3.xls"]
+#data_files = get_ipython().getoutput('ls ../data')
 X, Y = getXY(data_files)
 Y_ohe, Y_idx, klass_to_idx, idx_to_klass = convert_to_one_hot(Y)
 X_indices = sentences_to_indices(X, words_to_index, max_len)
