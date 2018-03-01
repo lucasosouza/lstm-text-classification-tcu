@@ -2,6 +2,68 @@ import numpy as np
 import pandas as pd
 import string
 from sklearn.model_selection import train_test_split
+import re
+import nltk
+
+
+sent_tokenizer = nltk.data.load('tokenizers/punkt/portuguese.pickle')
+
+# Punctuation list
+punctuations = re.escape('!"#%\'()*+,./:;<=>?@[\\]^_`{|}~')
+
+##
+## Same regex as imnported glove 
+##
+
+re_remove_brackets = re.compile(r'\{.*\}')
+re_remove_html = re.compile(r'<(\/|\\)?.+?>', re.UNICODE)
+re_transform_numbers = re.compile(r'\d', re.UNICODE)
+re_transform_emails = re.compile(r'[^\s]+@[^\s]+', re.UNICODE)
+re_transform_url = re.compile(r'(http|https)://[^\s]+', re.UNICODE)
+# Different quotes are used.
+re_quotes_1 = re.compile(r"(?u)(^|\W)[‘’′`']", re.UNICODE)
+re_quotes_2 = re.compile(r"(?u)[‘’`′'](\W|$)", re.UNICODE)
+re_quotes_3 = re.compile(r'(?u)[‘’`′“”]', re.UNICODE)
+re_dots = re.compile(r'(?<!\.)\.\.(?!\.)', re.UNICODE)
+re_punctuation = re.compile(r'([,";:]){2},', re.UNICODE)
+re_hiphen = re.compile(r' -(?=[^\W\d_])', re.UNICODE)
+re_tree_dots = re.compile(u'…', re.UNICODE)
+# Differents punctuation patterns are used.
+re_punkts = re.compile(r'(\w+)([%s])([ %s])' %
+                       (punctuations, punctuations), re.UNICODE)
+re_punkts_b = re.compile(r'([ %s])([%s])(\w+)' %
+                         (punctuations, punctuations), re.UNICODE)
+re_punkts_c = re.compile(r'(\w+)([%s])$' % (punctuations), re.UNICODE)
+re_changehyphen = re.compile(u'–')
+re_doublequotes_1 = re.compile(r'(\"\")')
+re_doublequotes_2 = re.compile(r'(\'\')')
+re_trim = re.compile(r' +', re.UNICODE)
+
+def clean_text(text):
+    """Apply all regex above to a given string."""
+    text = text.lower()
+    text = re_tree_dots.sub('...', text)
+    text = re.sub('\.\.\.', '', text)
+    text = re_remove_brackets.sub('', text)
+    text = re_changehyphen.sub('-', text)
+    text = re_remove_html.sub(' ', text)
+    text = re_transform_numbers.sub('0', text)
+    text = re_transform_url.sub('URL', text)
+    text = re_transform_emails.sub('EMAIL', text)
+    text = re_quotes_1.sub(r'\1"', text)
+    text = re_quotes_2.sub(r'"\1', text)
+    text = re_quotes_3.sub('"', text)
+    text = re.sub('"', '', text)
+    text = re_dots.sub('.', text)
+    text = re_punctuation.sub(r'\1', text)
+    text = re_hiphen.sub(' - ', text)
+    text = re_punkts.sub(r'\1 \2 \3', text)
+    text = re_punkts_b.sub(r'\1 \2 \3', text)
+    text = re_punkts_c.sub(r'\1 \2', text)
+    text = re_doublequotes_1.sub('\"', text)
+    text = re_doublequotes_2.sub('\'', text)
+    text = re_trim.sub(' ', text)
+    return text.strip()
 
 def splitXY(X, y):
     X_train, X_test, y_train, y_test = train_test_split(
@@ -73,7 +135,7 @@ def sentences_to_indices(X, word_to_index, max_len, log_file='log_wordindex.txt'
     m = X.shape[0]                                   # number of training examples
 
     # set to remove punctuation
-    exclude = set(string.punctuation)
+    #exclude = set(string.punctuation)
     
     # Initialize X_indices as a numpy matrix of zeros and the correct shape (≈ 1 line)
     X_indices = np.zeros((m, max_len))
@@ -83,14 +145,26 @@ def sentences_to_indices(X, word_to_index, max_len, log_file='log_wordindex.txt'
             for i in range(m):                               # loop over training examples
                 
                 # Convert the ith training sentence in lower case and split is into words. You should get a list of words.
-                sentence = ''.join(ch for ch in X[i] if ch not in exclude)
-                sentence_words = sentence.lower().split()
+                #sentence = ''.join(ch for ch in X[i] if ch not in exclude)
+                line = clean_text(X[i])                
+                                
+                words = []
+                
+                for sent in sent_tokenizer.tokenize(line):
+                    
+                    if sent.count(' ') >= 3 and sent[-1] in ['.', '!', '?', ';']:
+                        if sent[0:2] == '- ':
+                            sent = sent[2:]
+                    elif sent[0] == ' ' or sent[0] == '-':
+                        sent = sent[1:]
+                    for w in sent.lower().split():
+                        words.append(w)
                 
                 # Initialize j to 0
                 j = 0
                 
                 # Loop over the words of sentence_words
-                for w in sentence_words:
+                for w in words:
                     # Set the (i,j)th entry of X_indices to the index of the correct word.
                     try:
                         X_indices[i, j] = word_to_index[w]
