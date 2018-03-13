@@ -16,9 +16,10 @@ def read_glove_vecs(glove_file, log_file):
             word_to_vec_map = {}
             for line in f:
                 words_line = line.strip().split()
-                curr_word = words_line[0]
+                weights = words_line[-300:]
+                curr_word  = ''.join(words_line[:-300])
                 try:
-                    word_to_vec_map[curr_word] = np.array(words_line[1:], dtype=np.float64)
+                    word_to_vec_map[curr_word] = np.array(weights, dtype=np.float64)
                     words.add(curr_word)
                 except:
                     log.write(line)
@@ -31,6 +32,30 @@ def read_glove_vecs(glove_file, log_file):
                 i = i + 1
 
     return words_to_index, index_to_words, word_to_vec_map
+
+# def read_glove_vecs(glove_file, log_file):
+
+#     with open(log_file, 'w') as log:
+#         with open(glove_file, 'r') as f:
+#             words = set()
+#             word_to_vec_map = {}
+#             for line in f:
+#                 words_line = line.strip().split()
+#                 curr_word = words_line[0]
+#                 try:
+#                     word_to_vec_map[curr_word] = np.array(words_line[1:], dtype=np.float64)
+#                     words.add(curr_word)
+#                 except:
+#                     log.write(line)
+#             i = 1
+#             words_to_index = {}
+#             index_to_words = {}
+#             for w in sorted(words):
+#                 words_to_index[w] = i
+#                 index_to_words[i] = w
+#                 i = i + 1
+
+#     return words_to_index, index_to_words, word_to_vec_map
 
 def softmax(x):
     """Compute softmax values for each sets of scores in x."""

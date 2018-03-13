@@ -1,3 +1,4 @@
 *.npy
 glove_s300.txt
 __pycache__/
+embeddings/
