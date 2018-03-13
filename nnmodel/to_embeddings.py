@@ -1,5 +1,9 @@
 # to_embeddings.py
 
+import os
+os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"   # see issue #152
+os.environ["CUDA_VISIBLE_DEVICES"] = ""
+
 from utils import *
 import pandas as pd
 import numpy as np
